@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>100xzone — take one</title>
+    <meta name="description" content="Our file shelf. Take what you need." />
+    <style>
+      :root {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: #1f2430;
+        background: #faf7f2;
+        line-height: 1.6;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(180deg, #faf7f2 0%, #f3ede2 100%);
+      }
+      header {
+        padding: 3rem 1.5rem 1.5rem;
+        max-width: 640px;
+        margin: 0 auto;
+        width: 100%;
+        text-align: center;
+      }
+      h1 {
+        margin: 0;
+        font-size: 2.4rem;
+        letter-spacing: -0.02em;
+        font-weight: 800;
+      }
+      h1 .zone { color: #b3541e; }
+      .tag {
+        margin: 0.5rem 0 0;
+        color: #6b6355;
+        font-size: 1.05rem;
+      }
+      main {
+        flex: 1;
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 1rem 1.5rem 3rem;
+      }
+      h2 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #8a7f6d;
+        margin: 2rem 0 0.75rem;
+      }
+      ul { list-style: none; margin: 0; padding: 0; }
+      .files li {
+        background: #fffdf8;
+        border: 1px solid #e7dfd0;
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 0.6rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 0.75rem;
+        align-items: baseline;
+        box-shadow: 0 1px 2px rgba(120, 100, 70, 0.06);
+      }
+      .files a {
+        color: #b3541e;
+        font-weight: 650;
+        text-decoration: none;
+      }
+      .files a:hover { text-decoration: underline; }
+      .files .note { color: #8a7f6d; font-size: 0.92rem; }
+      .files .size { color: #b0a692; font-size: 0.85rem; margin-left: auto; }
+      .howto li {
+        color: #5f574a;
+        font-size: 0.95rem;
+        padding-left: 1.2rem;
+        position: relative;
+        margin-bottom: 0.4rem;
+      }
+      .howto li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: #c8a471;
+      }
+      footer {
+        text-align: center;
+        padding: 1.5rem;
+        color: #a2987f;
+        font-size: 0.85rem;
+      }
+      footer .dl { color: #8a7f6d; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>100x<span class="zone">zone</span></h1>
+      <p class="tag">Static for us. Download for you.</p>
+    </header>
+
+    <main>
+      <section class="shelf">
+        <h2>The shelf</h2>
+        <ul class="files">
+          <li>
+            <a href="https://dl.100xzone.com/rr.jpg">rr.jpg</a>
+            <span class="note">— first thing on the shelf</span>
+            <!-- To add a file: copy this whole <li>, point the href at
+                 https://dl.100xzone.com/<filename>, write a short note. -->
+          </li>
+        </ul>
+      </section>
+
+      <section class="howto">
+        <h2>How this works</h2>
+        <ul>
+          <li>Click a name to grab the file. That's the whole site.</li>
+          <li>Links are exact addresses — there's no browsing, so keep the ones we send you.</li>
+          <li>If a link stops working, the file moved — just ask for the new one.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      Files live at <span class="dl">dl.100xzone.com</span> · 100xzone
+    </footer>
+  </body>
+</html>
