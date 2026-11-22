@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puppf: four megabytes that have to prove themselves twice</title>
+<style>
+:root { color-scheme: light; }
+body { font-family: Georgia, 'Times New Roman', serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.65; color: #222; background: #faf8f4; }
+.uc { text-align: center; font-family: 'Courier New', monospace; font-size: 0.85rem; border: 2px dashed #b8860b; padding: 0.6rem; background: #fff8dc; animation: blink 2.5s steps(2, start) infinite; }
+@keyframes blink { 50% { border-color: #ffd700; } }
+h1 { font-size: 1.7rem; line-height: 1.25; margin-bottom: 0.3rem; }
+.byline { color: #666; font-size: 0.9rem; margin-bottom: 2rem; font-family: Verdana, sans-serif; }
+h2 { font-size: 1.15rem; margin-top: 2rem; }
+h3 { font-size: 1rem; margin-top: 1.6rem; }
+a { color: #8b4513; }
+code { background: #eee6da; padding: 0 0.25rem; font-family: 'Courier New', monospace; font-size: 0.9em; }
+ul { padding-left: 1.3rem; }
+hr { border: 0; border-top: 1px solid #ddd; margin: 2rem 0; }
+</style>
+</head>
+<body>
+<p class="uc">\u26a0 UNDER CONSTRUCTION \u26a0 (the webmaster will finish it whenever he feels like it) \u26a0 UNDER CONSTRUCTION \u26a0</p>
+<h1>Puppf: four megabytes that have to prove themselves twice</h1>
+<p class="byline">by Doc Linux &middot; November 22, 2026</p>
+<p>Most software projects tell you they work. I wanted one that had to show me.</p>
+<p>Puppf is a minimal, evidence-first Linux boot spike: a kernel and a BusyBox/musl initramfs that together weigh 4,040,866 bytes, boot offline in a 128 MiB QEMU guest, and print a heartbeat on a serial console. Kernel 6.18.7, Buildroot 2026.08, BusyBox v1.38.0. That's the whole product. The interesting part is the discipline around it.</p>
+<h2>It started with a 404</h2>
+<p>The project's first real test wasn't a bug in the code; it was a broken trust chain. The hosted build pipeline needed GPG-signed provenance, and the Buildroot signing key it tried to fetch returned 404. The obvious shortcut would have been to disable the GPG check. The repo's rule says claims trace to receipts and you don't weaken verification to make an error go away, so instead the key handling got fixed properly: pinned, verified, and the manifest clearsigned. Build #11 then passed two genuine QEMU boots, with signed provenance and owner acceptance, and got accepted on 2026-11-04.</p>
+<p>That set the tone for everything after.</p>
+<h2>The laptop build: LOCAL-001</h2>
+<p>An accepted hosted build proves the pipeline. It doesn't prove the artifacts are what the source says they are, because someone could argue the hosted runner had special state. So the next test was to rebuild the whole thing from source, on purpose, on modest hardware: a 4 GB RAM Celeron laptop running Lubuntu, single job, no shortcuts.</p>
+<p>It took about five hours. And the two images that came out, the bzImage (3,286,016 bytes) and the rootfs (754,850 bytes), were <strong>byte-for-byte identical to accepted build #11</strong>.</p>
+<p>That was verified two ways:</p>
+<ul>
+<li><strong>Independent SHA-256 recomputation</strong> of the laptop-built images against the accepted pins.</li>
+<li><strong>Source-vs-binary comparison</strong>: the <code>/init</code> inside the delivered image was extracted and compared byte-by-byte against the reviewed source <code>overlay/init</code>. Identical.</li>
+</ul>
+<p>The exact measurements, terminal transcript, and review record live in the evidence thread: <a href="https://github.com/MarkDude-design/Puppy/issues/15">Puppy issue #15</a>. The images themselves are on the immutable <a href="https://github.com/MarkDude-design/Puppy/tree/artifacts/evoo-build-001">artifacts/evoo-build-001</a> branch with pinned <code>SHA256SUMS</code>, so anyone can check for themselves.</p>
+<h2>What &ldquo;reproducible&rdquo; means here, and what it doesn't</h2>
+<p>I want to be careful with this word. What Puppf has is a <strong>two-build fact</strong>: two builds, two different hosts, matching bytes. That is a real result and it is not nothing. It is also not a general reproducibility guarantee, and I won't pretend it is one. General reproducibility is the property a project earns after many builds over time, and Puppf is at the start of that curve.</p>
+<p>The careful claim, stated in the README too, is: two builds, two different hosts, matching bytes, with the evidence to inspect. That's it. Claims trace to receipts, and the receipts say exactly this much and no more.</p>
+<h2>Testing doctrine: automated, by ruling</h2>
+<p>For the current generation and the next, acceptance testing is automated, and that was a deliberate decision rather than a limitation. Echo off, line editing disabled, serial-only: these are design choices that make the acceptance lanes mechanical rather than a human squinting at a scrolling screen and saying &ldquo;looks fine.&rdquo; The automated lanes:</p>
+<ol>
+<li><strong>Mechanical ground truth</strong>: hash pins, two-boot checks, byte-level content assertions against the images themselves.</li>
+<li><strong>Cross-family model review</strong>: independent reviews by model collaborators from different families, with disagreements preserved verbatim rather than smoothed over.</li>
+<li><strong>Outside humans</strong>: fresh reviewers outside the project look at the artifacts and the record.</li>
+</ol>
+<p>A human-interactive variant of the image (usable shell, launcher flag, clean poweroff) is fully specified somewhere reviewers can find it, but it's retired for this generation. The point of this generation was to prove the build and the evidence chain, not to be pleasant to type at.</p>
+<h2>The deliberate unfriendliness</h2>
+<p>The image boots to a <code>PUPPF_INIT</code> banner, prints <code>HELLO seq=N uptime_s=N</code> every 120 seconds, and runs a <code>PUPPF#</code> shell loop where shell exits just restart the shell. Echo is off and line editing is disabled. If you boot this thing expecting a cozy serial console experience, you'll notice within seconds. Every one of those quirks is in service of the automated lanes, and every one is documented as a deliberate choice.</p>
+<h2>What it is not</h2>
+<p>The README is blunt about this and I'll repeat it: Puppf is not a finished distribution, not a Puppy Linux fork or derivative, not a security boundary. Working name, method lineage: it draws inspiration from Barry Kauler's small, user-directed, rebuildable approach, with no affiliation or endorsement implied. It's a disposable serial-only proof that exists to validate a method.</p>
+<h2>Why the receipts matter more than the bytes</h2>
+<p>The 4 MB image is the demo; the evidence spine is the product. Every acceptance statement in the repo links the evidence that produced it. The record is append-only: corrections supersede, never erase, so a reviewer can watch the whole history of a claim, including the ones that were wrong first. The issue thread (<a href="https://github.com/MarkDude-design/Puppy/issues/15">#15</a>) is the chronological record of every build, review, and ruling, and reading it from the top is the intended experience.</p>
+<p>If you want to poke at it yourself:</p>
+<ul>
+<li><strong>Repo</strong>: <a href="https://github.com/MarkDude-design/Puppy">MarkDude-design/Puppy</a>, start with the README.</li>
+<li><strong>Evidence</strong>: <a href="https://github.com/MarkDude-design/Puppy/issues/15">issue #15</a>, read from the top.</li>
+<li><strong>Binaries</strong>: <a href="https://github.com/MarkDude-design/Puppy/tree/artifacts/evoo-build-001">artifacts/evoo-build-001</a>, with <code>SHA256SUMS</code> pins.</li>
+<li><strong>Launcher</strong>: <a href="https://github.com/MarkDude-design/Puppy/pull/21">PR #21</a>. <strong>Native runner</strong>: <a href="https://github.com/MarkDude-design/Puppy/pull/25">PR #25</a>. <strong>Serial harness</strong>: <a href="https://github.com/MarkDude-design/Puppy/pull/20">PR #20</a>. <strong>Workstation guide</strong>: <a href="https://github.com/MarkDude-design/Puppy/pull/24">PR #24</a>. <strong>Origin archive</strong>: <a href="https://github.com/MarkDude-design/Puppy/pull/23">PR #23</a>. All merged to main.</li>
+</ul>
+<p>Next up for the project: more builds over time to grow the two-build fact into a reproducibility track record, and the outside-reviewer rounds to see whether the evidence spine survives fresh eyes.</p>
+<hr>
+<p style="font-family: Verdana, sans-serif; font-size: 0.85rem; color: #777;">Puppf is a project diary, not a distribution. Puppy Linux and Barry Kauler inform the method; no affiliation or endorsement is implied. Claims trace to receipts: every link above is the receipt.</p>
+</body>
+</html>
